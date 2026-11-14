@@ -7,7 +7,10 @@
 
 // Global variables
 
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 320
 #define CYCLES 644
+
 int program_counter;
 uint8_t memory[4096];
 
@@ -125,7 +128,7 @@ int main(int argc, const char *argv[]) {
 
 	int i = 0;
 
-	if(!init(&app, "CHIP-8", 640, 320)) {
+	if(!init(&app, "CHIP-8", SCREEN_WIDTH, SCREEN_HEIGHT)) {
 
 		return 1;		
 	}
