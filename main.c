@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <sys/stat.h>
 #include <SDL3/SDL.h> 
 #include <SDL3/SDL_main.h> 
@@ -11,12 +10,12 @@
 #define SCREEN_HEIGHT 320
 #define DISPLAY_WIDTH 64
 #define DISPLAY_HEIGHT 32
-#define CYCLES 4096
+#define CYCLES 322
 
-int program_counter;
+uint16_t program_counter;
 uint8_t memory[4096];
 bool display[DISPLAY_WIDTH][DISPLAY_HEIGHT];
-
+uint16_t stack[16];
 
 SDL_FRect pixel = {0, 0, 10, 10};
 
@@ -111,7 +110,7 @@ int fsize(const char *filename){
 	return sb.st_size;
 }
 
-int load_rom(uint8_t RAM[], const char *filename){
+void load_rom(uint8_t RAM[], const char *filename){
 
 	for(int h = 0; h < DISPLAY_WIDTH; h++){
 		for(int k = 0; k < DISPLAY_HEIGHT; k++){
@@ -127,27 +126,28 @@ int load_rom(uint8_t RAM[], const char *filename){
 }
 
 // FDE Cycle
-int fetch(int *PC, uint8_t RAM[]) {
+uint16_t fetch(uint16_t *PC, uint8_t RAM[]) {
 	
-	int MAR = *PC;
-	int MDR = RAM[MAR];
+	uint16_t MAR = *PC;
+	uint16_t MDR = (RAM[MAR] << 8) | RAM[MAR+1]; 
 
-	(*PC)++;
+	(*PC) += 2;
 	return MDR;
 }
-int decode(int instruction){
-	
-			
-}
-int execute(int opcode, int operand){
+void decode(uint16_t instruction){
 
-	//(void)instruction;
+	uint16_t CIR = instruction;
 }
 
 int main(int argc, const char *argv[]) {
 	
 	App app = {0};
-	load_rom(memory, argv[1]);	
+	if (argc == 2){
+		load_rom(memory, argv[1]);	
+	} else {
+		perror("load_rom");
+		exit(EXIT_FAILURE);	
+	}
 
 	int i = 0;
 
@@ -161,7 +161,7 @@ int main(int argc, const char *argv[]) {
 		update(&app);
 		render(&app);
 
-		fetch(&program_counter, memory);
+		decode(fetch(&program_counter, memory));
 		i++;
 	}
 	
