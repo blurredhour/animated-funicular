@@ -9,10 +9,16 @@
 
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 320
-#define CYCLES 644
+#define DISPLAY_WIDTH 64
+#define DISPLAY_HEIGHT 32
+#define CYCLES 4096
 
 int program_counter;
 uint8_t memory[4096];
+bool display[DISPLAY_WIDTH][DISPLAY_HEIGHT];
+
+
+SDL_FRect pixel = {0, 0, 10, 10};
 
 // Window Renderer
 
@@ -70,7 +76,17 @@ static void render(App *app) {
 
 	SDL_SetRenderDrawColor(app->renderer, 0, 255, 0, 255);
 	SDL_RenderClear(app->renderer);
+	SDL_SetRenderDrawColor(app->renderer, 0, 0, 0, 255);
 
+	for(int x = 0; x < DISPLAY_WIDTH; x++){
+		for(int y = 0; y < DISPLAY_HEIGHT; y++){
+			if(display[x][y]){
+				pixel.x = x * 10;
+				pixel.y = y * 10;
+				SDL_RenderFillRect(app->renderer, &pixel);
+			}
+		}
+	}
 
 	SDL_RenderPresent(app->renderer);
 }
@@ -97,10 +113,17 @@ int fsize(const char *filename){
 
 int load_rom(uint8_t RAM[], const char *filename){
 
+	for(int h = 0; h < DISPLAY_WIDTH; h++){
+		for(int k = 0; k < DISPLAY_HEIGHT; k++){
+			display[h][k] = true;
+		}
+	}
+
 	FILE *file =  fopen(filename, "r"); 
-	for(int i = 0; i < (fsize(filename)*2); i++){
+	for(int i = 0; i < fsize(filename); i++){
 		fread(&RAM[i + 0x200], 1, fsize(filename), file); 
 	}
+	fclose(file);
 }
 
 // FDE Cycle
@@ -114,7 +137,7 @@ int fetch(int *PC, uint8_t RAM[]) {
 }
 int decode(int instruction){
 	
-		
+			
 }
 int execute(int opcode, int operand){
 
